@@ -67,12 +67,12 @@ class PipeLineExecution(Base):
     elapsed_time = Column(Integer)
     pipeline_id = Column(Integer, ForeignKey('pipelines.id'))
 
-    job_runs = relationship(
-        "JobRun", backref=backref('pipeline_execution', remote_side=[id]))
+    job_executions = relationship(
+        "JobExecution", backref=backref('pipeline_execution', remote_side=[id]))
 
 
-class JobRun(Base):
-    __tablename__ = 'job_runs'
+class JobExecution(Base):
+    __tablename__ = 'job_executions'
     id = Column(Integer, primary_key=True)
     current_state = Column(Text)
     job_id = Column(Integer, ForeignKey('jobs.id'))

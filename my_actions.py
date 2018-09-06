@@ -45,30 +45,61 @@ def createJob(command, required_memory, required_wall_time, required_cpus, requi
     return job
 
 
-# Create job run
-def createJobRun(current_state, job, pipeline, start_time, end_time, elapsed_time, exit_status):
-    jobRun = dbm.JobRun(
+# Create pipeline execution
+def createPipelineExecution(pipeline_executor, start_time, end_time, elapsed_time, pipeline):
+    pipeline_execution = dbm.PipeLineExecution(
+        pipeline_executor = pipeline_executor,
+        start_time = start_time,
+        end_time = end_time,
+        elapsed_time = elapsed_time,
+        pipeline_id = pipeline.id
+    )
+    session.add(pipeline_execution)
+    session.commit()
+
+    logger.log('PipeLine executor ' + pipeline_executor + ' created', 'INFO')
+
+    return pipeline_execution
+
+
+# Create job execution
+def createJobExecution(current_state, job, start_time, end_time, elapsed_time, exit_status):
+    job_execution = dbm.JobExecution(
         current_state = current_state,
         job_id = job.id,
-        pipeline_id = pipeline,
         start_time = start_time,
         end_time = end_time,
         elapsed_time = elapsed_time,
         exit_status = exit_status
     )
-    session.add(jobRun)
+    session.add(job_execution)
     session.commit()
 
-    logger.log('Job run with status ' +  current_state + ' created', 'INFO')
+    logger.log('Job execution for job ' + str(job.id) + ' was created with status ' +  current_state, 'INFO')
 
-    return jobRun
+    return job_execution
+
+
+# Update job execution
+def updateJobExecution(job_execution, new_current_state):
+    previous_state = job_execution.current_state
+    job_execution.current_state = new_current_state
+    session.commit()
+
+    logger.log('Status of job execution ' + str(job_execution.id) + ' was updated from ' + previous_state + ' to ' +  new_current_state, 'INFO')
+
+
+# Add job execution to pipeline
+def addJobExecutionToPipelineExecution(pipeline_execution, job_execution):
+    pipeline_execution.job_executions.append(job_execution)
+    logger.log('Job execution ' +  str(job_execution.id) + ' was added to pipeline execution ' + str(pipeline_execution.id), 'INFO')
 
 
 # Link job to job
-def linkJobToJob(job1, job2):
-    job2.parents.append(job1)
+def linkJobToJob(parent_job, child_job):
+    child_job.parents.append(parent_job)
     session.commit()
-    logger.log('Job ' +  str(job2.id) + ' linked to job ' + str(job2.id), 'INFO')
+    logger.log('Job ' +  str(child_job.id) + ' linked to job ' + str(child_job.id), 'INFO')
 
 
 # Link job to pipeline
@@ -93,18 +124,32 @@ def linkJobToPipeline(job, pipeline):
 
 
 # Test
-job1 = createJob('job1', 123, 123, 345, '22dff2', 'dfgfd')
-print 'Job1 id ' + str(job1.id) + ' created'
+job_1 = createJob('job1', 123, 123, 345, '22dff2', 'dfgfd')
+print 'Job1 id ' + str(job_1.id) + ' created'
 
-job2 = createJob('job2', 1323, 1233, 3453, 'hkkjh', 'eyeyrty')
-print 'Job2 id ' + str(job2.id) + ' created'
+job_2 = createJob('job2', 1323, 1233, 3453, 'hkkjh', 'eyeyrty')
+print 'Job2 id ' + str(job_2.id) + ' created'
 
 pipeline = createPipeline('Test pipleline', 'Vijini')
 print 'Pipeline id ' + str(pipeline.id) + ' created'
 
-linkJobToPipeline(job1, pipeline)
-print 'Pipeline of job ' + str(job1.id) + ' is pipeline.id' + str(job1.pipeline_id)
+linkJobToPipeline(job_1, pipeline)
+print 'Pipeline of job ' + str(job_1.id) + ' is pipeline.id' + str(job_1.pipeline_id)
 print pipeline.roots
 
-linkJobToJob(job1, job2)
-print 'Parents of job ' + str(job2.id) + ' are ' + str(job2.parents)
+linkJobToPipeline(job_1, pipeline)
+
+linkJobToJob(job_1, job_2)
+print 'Parents of job ' + str(job_2.id) + ' are ' + str(job_2.parents)
+
+pipeline_execution = createPipelineExecution('ASDFGHJ', 345, 34545, 34454, pipeline)
+print pipeline_execution.pipeline_executor
+
+job_execution = createJobExecution('Ready', job_1, 1000, 2000, 1000, 0)
+print 'Job execution ' + str(job_execution.job_id) + ' was created with status ' + job_execution.current_state
+
+updateJobExecution(job_execution, 'Started')
+print 'Status of job execution ' + str(job_execution.job_id) + ' was updated to ' + job_execution.current_state
+
+addJobExecutionToPipelineExecution(pipeline_execution, job_execution)
+print pipeline_execution.job_executions
