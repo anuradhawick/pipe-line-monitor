@@ -3,6 +3,7 @@ import sys
 import os.path
 from os import path
 
+
 def log(message, level):
 
     # Initialize logger file
