@@ -1,12 +1,10 @@
+import os
 from sqlalchemy import Column, Date, Integer, String, Text, ForeignKey, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship, backref, mapper
 
-# engine = create_engine(
-#     'sqlite:////media/admin-u6776114/data/pipe-mgr/db/database.db', echo=True)
-
 engine = create_engine(
-    'sqlite:////media/admin-u6776102/data/Pipeline Project/pipe-line-monitor/db/database.db', echo=True)
+    'sqlite:///' + os.getcwd() + '/db/database.db', echo=True)
 
 Base = declarative_base()
 

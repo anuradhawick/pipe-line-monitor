@@ -1,10 +1,13 @@
 import logging
 import sys
+import os.path
+from os import path
 
 def log(message, level):
 
-    # Logger file
-    open('my_actions_log.log', 'a')
+    # Initialize logger file
+    if path.exists("my_actions_log.log"):
+        open('my_actions_log.log', 'a')
 
     # Logger configurations
     logging.basicConfig(
