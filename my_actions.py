@@ -22,7 +22,7 @@ def createPipeline(pipeline_name, pipeline_owner):
     session.add(pipeline)
     session.commit()
 
-    logger.log('Pipline ' +  pipeline_name + ' created', 'INFO')
+    logger.log('Pipline ' +  pipeline_name + ' created with id ' + str(pipeline.id), 'INFO')
 
     return pipeline
 
@@ -40,7 +40,7 @@ def createJob(command, required_memory, required_wall_time, required_cpus, requi
     session.add(job)
     session.commit()
 
-    logger.log('Job for command ' +  command + ' created', 'INFO')
+    logger.log('Job for command ' +  command + ' created with id ' + str(job.id), 'INFO')
 
     return job
 
@@ -57,7 +57,7 @@ def createPipelineExecution(pipeline_executor, start_time, end_time, elapsed_tim
     session.add(pipeline_execution)
     session.commit()
 
-    logger.log('PipeLine executor ' + pipeline_executor + ' created', 'INFO')
+    logger.log('Pipeline execution ' + pipeline_executor + ' created with id ' + str(pipeline_execution.id), 'INFO')
 
     return pipeline_execution
 
@@ -99,7 +99,7 @@ def addJobExecutionToPipelineExecution(pipeline_execution, job_execution):
 def linkJobToJob(parent_job, child_job):
     child_job.parents.append(parent_job)
     session.commit()
-    logger.log('Job ' +  str(child_job.id) + ' linked to job ' + str(child_job.id), 'INFO')
+    logger.log('Job ' +  str(child_job.id) + ' linked to job ' + str(parent_job.id), 'INFO')
 
 
 # Link job to pipeline
@@ -115,41 +115,31 @@ def linkJobToPipeline(job, pipeline):
             break
 
     if present == True:
-        logger.log('Job run id ' +  str(job.id) + ' already exists in the pipeline', 'WARNING')
+        logger.log('Job run id ' +  str(job.id) + ' already exists in the pipeline ' + str(pipeline.id), 'WARNING')
     else:
         pipeline.roots.append(job)
-        logger.log('Job run id ' +  str(job.id) + ' added to pipeline', 'INFO')
+        logger.log('Job run id ' +  str(job.id) + ' added to pipeline ' + str(pipeline.id), 'INFO')
 
     session.commit()
 
 
 # Test
-job_1 = createJob('job1', 123, 123, 345, '22dff2', 'dfgfd')
-print '-------Job1 id ' + str(job_1.id) + ' created'
+job_1 = createJob('run job1', 123, 123, 345, '22dff2', 'dfgfd')
 
-job_2 = createJob('job2', 1323, 1233, 3453, 'hkkjh', 'eyeyrty')
-print '-------Job2 id ' + str(job_2.id) + ' created'
+job_2 = createJob('run job2', 1323, 1233, 3453, 'hkkjh', 'eyeyrty')
 
 pipeline = createPipeline('Test pipleline', 'Vijini')
-print '-------Pipeline id ' + str(pipeline.id) + ' created'
 
 linkJobToPipeline(job_1, pipeline)
-print '-------Pipeline of job ' + str(job_1.id) + ' is pipeline.id' + str(job_1.pipeline_id)
-print '-------Jobs in pipeline are ' + str(pipeline.roots)
 
 linkJobToPipeline(job_1, pipeline)
 
 linkJobToJob(job_1, job_2)
-print '-------Parents of job ' + str(job_2.id) + ' are ' + str(job_2.parents)
 
 pipeline_execution = createPipelineExecution('ASDFGHJ', 345, 34545, 34454, pipeline)
-print '-------Pipeline execution ' + pipeline_execution.pipeline_executor + ' was created'
 
 job_execution = createJobExecution('Ready', job_1, 1000, 2000, 1000, 0)
-print '-------Job execution ' + str(job_execution.job_id) + ' was created with status ' + job_execution.current_state
 
 updateJobExecution(job_execution, 'Started')
-print '-------Status of job execution ' + str(job_execution.job_id) + ' was updated to ' + job_execution.current_state
 
 addJobExecutionToPipelineExecution(pipeline_execution, job_execution)
-print '-------Job executions in pipeline execution are ' + str(pipeline_execution.job_executions)
