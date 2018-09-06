@@ -8,9 +8,11 @@ def log(message, level):
 
     # Logger configurations
     logging.basicConfig(
-        # stream=sys.stdout,
-        filename='my_actions_log.log',
         format='%(asctime)s %(levelname)s %(message)s',
+        handlers=[
+            logging.FileHandler("my_actions_log.log"),
+            logging.StreamHandler()
+        ],
         level=logging.INFO
     )
 
