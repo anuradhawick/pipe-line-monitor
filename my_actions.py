@@ -125,31 +125,31 @@ def linkJobToPipeline(job, pipeline):
 
 # Test
 job_1 = createJob('job1', 123, 123, 345, '22dff2', 'dfgfd')
-print 'Job1 id ' + str(job_1.id) + ' created'
+print '-------Job1 id ' + str(job_1.id) + ' created'
 
 job_2 = createJob('job2', 1323, 1233, 3453, 'hkkjh', 'eyeyrty')
-print 'Job2 id ' + str(job_2.id) + ' created'
+print '-------Job2 id ' + str(job_2.id) + ' created'
 
 pipeline = createPipeline('Test pipleline', 'Vijini')
-print 'Pipeline id ' + str(pipeline.id) + ' created'
+print '-------Pipeline id ' + str(pipeline.id) + ' created'
 
 linkJobToPipeline(job_1, pipeline)
-print 'Pipeline of job ' + str(job_1.id) + ' is pipeline.id' + str(job_1.pipeline_id)
-print pipeline.roots
+print '-------Pipeline of job ' + str(job_1.id) + ' is pipeline.id' + str(job_1.pipeline_id)
+print '-------Jobs in pipeline are ' + str(pipeline.roots)
 
 linkJobToPipeline(job_1, pipeline)
 
 linkJobToJob(job_1, job_2)
-print 'Parents of job ' + str(job_2.id) + ' are ' + str(job_2.parents)
+print '-------Parents of job ' + str(job_2.id) + ' are ' + str(job_2.parents)
 
 pipeline_execution = createPipelineExecution('ASDFGHJ', 345, 34545, 34454, pipeline)
-print pipeline_execution.pipeline_executor
+print '-------Pipeline execution ' + pipeline_execution.pipeline_executor + ' was created'
 
 job_execution = createJobExecution('Ready', job_1, 1000, 2000, 1000, 0)
-print 'Job execution ' + str(job_execution.job_id) + ' was created with status ' + job_execution.current_state
+print '-------Job execution ' + str(job_execution.job_id) + ' was created with status ' + job_execution.current_state
 
 updateJobExecution(job_execution, 'Started')
-print 'Status of job execution ' + str(job_execution.job_id) + ' was updated to ' + job_execution.current_state
+print '-------Status of job execution ' + str(job_execution.job_id) + ' was updated to ' + job_execution.current_state
 
 addJobExecutionToPipelineExecution(pipeline_execution, job_execution)
-print pipeline_execution.job_executions
+print '-------Job executions in pipeline execution are ' + str(pipeline_execution.job_executions)
