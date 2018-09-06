@@ -2,8 +2,12 @@ from sqlalchemy import Column, Date, Integer, String, Text, ForeignKey, create_e
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship, backref, mapper
 
+# engine = create_engine(
+#     'sqlite:////media/admin-u6776114/data/pipe-mgr/db/database.db', echo=True)
+
 engine = create_engine(
-    'sqlite:////media/admin-u6776114/data/pipe-mgr/db/database.db', echo=True)
+    'sqlite:////media/admin-u6776102/data/Pipeline Project/pipe-line-monitor/db/database.db', echo=True)
+
 Base = declarative_base()
 
 # job_association_table = Table('job_association', Base.metadata,
@@ -25,7 +29,7 @@ class Job(Base):
     __tablename__ = 'jobs'
     id = Column(Integer, primary_key=True)
     command = Column(Text)
-    pipleine_id = Column(Integer, ForeignKey('pipelines.id'))
+    pipeline_id = Column(Integer, ForeignKey('pipelines.id'))
     required_memory = Column(Integer)
     required_wall_time = Column(Integer)
     required_cpus = Column(Integer)
@@ -38,7 +42,7 @@ class Job(Base):
         secondaryjoin='job_association.parent_job_id==Job.id',
         backref="children")
 
-
+    # TODO add relationship to pipeline
 
 
 class PipeLine(Base):

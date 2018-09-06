@@ -2,8 +2,11 @@ import dbmodels.models as dbm
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 
+# engine = create_engine(
+#     'sqlite:////media/admin-u6776114/data/pipe-mgr/db/database.db', echo=False)
+
 engine = create_engine(
-    'sqlite:////media/admin-u6776114/data/pipe-mgr/db/database.db', echo=False)
+    'sqlite:////media/admin-u6776102/data/Pipeline Project/pipe-line-monitor/db/database.db', echo=False)
 
 Session = sessionmaker(bind=engine)
 session = Session()
