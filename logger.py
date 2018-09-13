@@ -1,31 +1,39 @@
 import logging
 import sys
-import os.path
+import os
 from os import path
 
+log_file_name = "my_actions_log.log"
 
 def log(message, level):
 
     # Initialize logger file
-    if path.exists("my_actions_log.log"):
-        open('my_actions_log.log', 'a')
+    if not path.exists(log_file_name):
+        open(log_file_name, 'a')
 
-    # Logger configurations
-    logging.basicConfig(
-        format='%(asctime)s %(levelname)s %(message)s',
-        handlers=[
-            logging.FileHandler("my_actions_log.log"),
-            logging.StreamHandler()
-        ],
-        level=logging.INFO
-    )
+    rootLogger = logging.getLogger("my_logger")
 
-    # TODO add both logging to file and console
+    if not rootLogger.handlers:
 
-    # Separate messages from log level
+        # Logger configurations
+        logFormatter = logging.Formatter(
+            "%(asctime)s %(levelname)s %(message)s")
+        rootLogger.setLevel(logging.INFO)
+
+        # Set file handler
+        fileHandler = logging.FileHandler(log_file_name)
+        fileHandler.setFormatter(logFormatter)
+        rootLogger.addHandler(fileHandler)
+
+        # Set console handler
+        consoleHandler = logging.StreamHandler()
+        consoleHandler.setFormatter(logFormatter)
+        rootLogger.addHandler(consoleHandler)
+
+   # Separate messages from log level
     if level == 'DEBUG':
-        logging.debug(message)
+        rootLogger.debug(message)
     elif level == 'INFO':
-        logging.info(message)
+        rootLogger.info(message)
     elif level == 'WARNING':
-        logging.warning(message)
+        rootLogger.warning(message)
