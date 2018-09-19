@@ -106,6 +106,33 @@ def linkJobToJob(parent_job, child_job):
     logger.log('Job ' + str(child_job.id) +
                ' linked to job ' + str(parent_job.id), 'INFO')
 
+# Set job as ready
+def setJobAsReady(job):
+    job.current_state = 'ready'
+    session.commit()
+    logger.log('Job ' + str(job.id) +
+               ' marked ready', 'INFO')
+
+# Set job as running
+def setJobAsRunning(job):
+    job.current_state = 'running'
+    session.commit()
+    logger.log('Job ' + str(job.id) +
+               ' marked running', 'INFO')
+
+# Set job as completed
+def setJobAsCompleted(job):
+    job.current_state = 'completed'
+    session.commit()
+    logger.log('Job ' + str(job.id) +
+               ' marked completed', 'INFO')
+
+# Set job as failed
+def setJobAsFailed(job):
+    job.current_state = 'failed'
+    session.commit()
+    logger.log('Job ' + str(job.id) +
+               ' marked failed', 'INFO')
 
 # Link job to pipeline
 def linkJobToPipeline(job, pipeline):
@@ -131,23 +158,23 @@ def linkJobToPipeline(job, pipeline):
 
 
 # Test
-job_1 = createJob('run job1', 123, 123, 345, '22dff2', 'dfgfd')
+# job_1 = createJob('run job1', 123, 123, 345, '22dff2', 'dfgfd')
 
-job_2 = createJob('run job2', 1323, 1233, 3453, 'hkkjh', 'eyeyrty')
+# job_2 = createJob('run job2', 1323, 1233, 3453, 'hkkjh', 'eyeyrty')
 
-pipeline = createPipeline('Test pipleline', 'Vijini')
+# pipeline = createPipeline('Test pipleline', 'Vijini')
 
-linkJobToPipeline(job_1, pipeline)
+# linkJobToPipeline(job_1, pipeline)
 
-linkJobToPipeline(job_1, pipeline)
+# linkJobToPipeline(job_1, pipeline)
 
-linkJobToJob(job_1, job_2)
+# linkJobToJob(job_1, job_2)
 
-pipeline_execution = createPipelineExecution(
-    'ASDFGHJ', 345, 34545, 34454, pipeline)
+# pipeline_execution = createPipelineExecution(
+#     'ASDFGHJ', 345, 34545, 34454, pipeline)
 
-job_execution = createJobExecution('Ready', job_1, 1000, 2000, 1000, 0)
+# job_execution = createJobExecution('Ready', job_1, 1000, 2000, 1000, 0)
 
-updateJobExecution(job_execution, 'Started')
+# updateJobExecution(job_execution, 'Started')
 
-addJobExecutionToPipelineExecution(pipeline_execution, job_execution)
+# addJobExecutionToPipelineExecution(pipeline_execution, job_execution)

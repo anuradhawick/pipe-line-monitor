@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship, backref, mapper
 
 engine = create_engine(
-    'sqlite:///' + os.getcwd() + '/db/database.db', echo=True)
+    'sqlite:///' + os.getcwd() + '/db/database.db', echo=False)
 
 Base = declarative_base()
 
@@ -31,6 +31,7 @@ class Job(Base):
     required_memory = Column(Integer)
     required_wall_time = Column(Integer)
     required_cpus = Column(Integer)
+    current_state = Column(Text)
     required_modules = Column(Text)
     unique = Column(Text)
 
@@ -72,7 +73,6 @@ class PipeLineExecution(Base):
 class JobExecution(Base):
     __tablename__ = 'job_executions'
     id = Column(Integer, primary_key=True)
-    current_state = Column(Text)
     job_id = Column(Integer, ForeignKey('jobs.id'))
     pipeline_execution_id = Column(
         Integer, ForeignKey('pipeline_executions.id'))
