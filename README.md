@@ -1,6 +1,6 @@
-# Pipe Line Monitor
+# Pipeline Monitor
 
-A schduler to execute and run a pipe line of commands in a supercomputing facility. The program can schedule a graph-like execution sequence.
+A schduler to execute and run a pipeline of commands in a supercomputing facility. The program can schedule a graph-like execution sequence.
 
 ## Pre-requisites
 
