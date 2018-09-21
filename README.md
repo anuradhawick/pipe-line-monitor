@@ -37,7 +37,7 @@ from pipeline.pipeline_actions import link_job_to_job
 link_job_to_job(job_2, job_3)
 ```
 ## Pipeline Execution
-Run the file `runner.py`, or submit the file to the Queue.
+Run the file `runner.py`, or submit the file to the Queue. In order to provide a head node to the pipeline, we mark the initial job as `ready` using `set_job_as_ready(job_1)` which is a function in the `pipeline.pipeline_actions module`
 ### Runner Functionality
 It calls the method `main_loop()` everytime the file is executed. The steps within the method are as follows.
 
