@@ -1,18 +1,16 @@
-import dbmodels.models as dbm
+import db_utils.models as dbm
 import logger
 import os
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
+import db_utils.utils as utils
 
-engine = create_engine(
-    'sqlite:///' + os.getcwd() + '/db/database.db', echo=False)
-
-Session = sessionmaker(bind=engine)
-session = Session()
-
+session = utils.get_session()
 
 # Create pipeline
-def createPipeline(pipeline_name, pipeline_owner):
+
+
+def create_pipeline(pipeline_name, pipeline_owner):
     pipeline = dbm.PipeLine(
         pipeline_name=pipeline_name,
         pipeline_owner=pipeline_owner
@@ -27,7 +25,7 @@ def createPipeline(pipeline_name, pipeline_owner):
 
 
 # Create job
-def createJob(command, required_memory, required_wall_time, required_cpus, required_modules, unique):
+def create_job(command, required_memory, required_wall_time, required_cpus, required_modules, unique):
     job = dbm.Job(
         command=command,
         required_memory=required_memory,
@@ -46,7 +44,7 @@ def createJob(command, required_memory, required_wall_time, required_cpus, requi
 
 
 # Create pipeline execution
-def createPipelineExecution(pipeline_executor, start_time, end_time, elapsed_time, pipeline):
+def create_pipeline_execution(pipeline_executor, start_time, end_time, elapsed_time, pipeline):
     pipeline_execution = dbm.PipeLineExecution(
         pipeline_executor=pipeline_executor,
         start_time=start_time,
@@ -64,78 +62,111 @@ def createPipelineExecution(pipeline_executor, start_time, end_time, elapsed_tim
 
 
 # Create job execution
-def createJobExecution(current_state, job, start_time, end_time, elapsed_time, exit_status):
+# TODO integrate pipeline relation ship
+def create_job_execution(job, start_time, end_time, elapsed_time, exit_status):
     job_execution = dbm.JobExecution(
-        current_state=current_state,
-        job_id=job.id,
         start_time=start_time,
         end_time=end_time,
         elapsed_time=elapsed_time,
         exit_status=exit_status
     )
+    job.current_execution = job_execution
     session.add(job_execution)
     session.commit()
 
-    logger.log('Job execution for job ' + str(job.id) +
-               ' was created with status ' + current_state, 'INFO')
+    logger.log('Job execution for job ' + str(job.id), 'INFO')
 
     return job_execution
 
 
-# Update job execution
-def updateJobExecution(job_execution, new_current_state):
-    previous_state = job_execution.current_state
-    job_execution.current_state = new_current_state
+# Update job execution, at the end of execution
+def update_job_execution(job_execution, end_time, elapsed_time, exit_status):
+    job_execution.end_time = end_time
+    job_execution.elapsed_time = elapsed_time
+    job_execution.exit_status = exit_status
+
     session.commit()
 
     logger.log('Status of job execution ' + str(job_execution.id) +
-               ' was updated from ' + previous_state + ' to ' + new_current_state, 'INFO')
+               ' was updated end time ' + str(end_time) + ' with elapsed time ' + str(elapsed_time) + ' exit status ' + str(exit_status), 'INFO')
 
 
 # Add job execution to pipeline
-def addJobExecutionToPipelineExecution(pipeline_execution, job_execution):
+def add_job_execution_to_pipeline_execution(pipeline_execution, job_execution):
     pipeline_execution.job_executions.append(job_execution)
     logger.log('Job execution ' + str(job_execution.id) +
                ' was added to pipeline execution ' + str(pipeline_execution.id), 'INFO')
 
 
 # Link job to job
-def linkJobToJob(parent_job, child_job):
+def link_job_to_job(parent_job, child_job):
     child_job.parents.append(parent_job)
     session.commit()
     logger.log('Job ' + str(child_job.id) +
                ' linked to job ' + str(parent_job.id), 'INFO')
 
 # Set job as ready
-def setJobAsReady(job):
+
+
+def set_job_as_ready(job):
     job.current_state = 'ready'
     session.commit()
     logger.log('Job ' + str(job.id) +
                ' marked ready', 'INFO')
 
 # Set job as running
-def setJobAsRunning(job):
+
+
+def set_job_as_running(job):
     job.current_state = 'running'
     session.commit()
     logger.log('Job ' + str(job.id) +
                ' marked running', 'INFO')
 
 # Set job as completed
-def setJobAsCompleted(job):
+
+
+def set_job_as_completed(job):
     job.current_state = 'completed'
+    job.current_execution = None
     session.commit()
     logger.log('Job ' + str(job.id) +
                ' marked completed', 'INFO')
+        
 
 # Set job as failed
-def setJobAsFailed(job):
+
+
+def set_job_as_failed(job):
     job.current_state = 'failed'
     session.commit()
     logger.log('Job ' + str(job.id) +
                ' marked failed', 'INFO')
 
+# Update jobs eligibility to run
+
+
+def update_next_ready_jobs(completed_job):
+    # get next set of jobs
+    children = completed_job.children
+
+    # for each child
+    for child in children:
+        parents = child.parents
+        parent_ok = True
+        
+        # check if parents have completed
+        for parent in parents:
+            if parent.current_state != 'completed':
+                parent_ok = False
+                break
+        if parent_ok:
+            set_job_as_ready(child)
+
 # Link job to pipeline
-def linkJobToPipeline(job, pipeline):
+
+
+def link_job_to_pipeline(job, pipeline):
     job.pipleine_id = pipeline.id
     session.add(job)
 
@@ -156,25 +187,8 @@ def linkJobToPipeline(job, pipeline):
 
     session.commit()
 
+# get array of ready jobs
 
-# Test
-# job_1 = createJob('run job1', 123, 123, 345, '22dff2', 'dfgfd')
 
-# job_2 = createJob('run job2', 1323, 1233, 3453, 'hkkjh', 'eyeyrty')
-
-# pipeline = createPipeline('Test pipleline', 'Vijini')
-
-# linkJobToPipeline(job_1, pipeline)
-
-# linkJobToPipeline(job_1, pipeline)
-
-# linkJobToJob(job_1, job_2)
-
-# pipeline_execution = createPipelineExecution(
-#     'ASDFGHJ', 345, 34545, 34454, pipeline)
-
-# job_execution = createJobExecution('Ready', job_1, 1000, 2000, 1000, 0)
-
-# updateJobExecution(job_execution, 'Started')
-
-# addJobExecutionToPipelineExecution(pipeline_execution, job_execution)
+def get_one_ready_job():
+    return session.query(dbm.Job).filter(dbm.Job.current_state == 'ready').first()
