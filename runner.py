@@ -27,7 +27,6 @@ def main_loop():
             actions.update_next_ready_jobs(job)
         else:
             actions.update_job_execution(job_execution, now_time, (now_time - job_execution.start_time), execution.returncode)
-            job.current_state = 'failed'
             actions.set_job_as_failed(job)
 
 main_loop()

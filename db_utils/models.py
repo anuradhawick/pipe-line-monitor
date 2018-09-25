@@ -19,7 +19,7 @@ class job_association(Base):
 class Job(Base):
     __tablename__ = 'jobs'
     id = Column(Integer, primary_key=True)
-    command = Column(Text)
+    command = Column(Text, unique=True)
     pipeline_id = Column(Integer, ForeignKey('pipelines.id'))
     current_execution_id = Column(Integer, ForeignKey('job_executions.id'))
     required_memory = Column(Integer)

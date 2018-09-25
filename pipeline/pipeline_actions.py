@@ -25,14 +25,13 @@ def create_pipeline(pipeline_name, pipeline_owner):
 
 
 # Create job
-def create_job(command, required_memory, required_wall_time, required_cpus, required_modules, unique):
+def create_job(command, required_memory, required_wall_time, required_cpus, required_modules): # TODO make unique the task name
     job = dbm.Job(
         command=command,
         required_memory=required_memory,
         required_wall_time=required_wall_time,
         required_cpus=required_cpus,
         required_modules=required_modules,
-        unique=unique,
     )
     session.add(job)
     session.commit()
@@ -65,12 +64,14 @@ def create_pipeline_execution(pipeline_executor, start_time, end_time, elapsed_t
 # TODO integrate pipeline relation ship
 def create_job_execution(job, start_time, end_time, elapsed_time, exit_status):
     job_execution = dbm.JobExecution(
+        job_id=job.id,
         start_time=start_time,
         end_time=end_time,
         elapsed_time=elapsed_time,
         exit_status=exit_status
     )
     job.current_execution = job_execution
+    # job_execution.job = job
     session.add(job_execution)
     session.commit()
 
@@ -99,20 +100,25 @@ def add_job_execution_to_pipeline_execution(pipeline_execution, job_execution):
 
 
 # Link job to job
-def link_job_to_job(parent_job, child_job):
-    child_job.parents.append(parent_job)
-    session.commit()
-    logger.log('Job ' + str(child_job.id) +
-               ' linked to job ' + str(parent_job.id), 'INFO')
+def link_job_to_job(**kwargs):
+    parent_job = kwargs.get('parent_job',None)
+    child_job = kwargs.get('child_job',None)
+
+    if parent_job and child_job:
+        child_job.parents.append(parent_job)
+        session.commit()
+        logger.log('Job ' + str(child_job.id) +
+                ' linked to job ' + str(parent_job.id), 'INFO')
 
 # Set job as ready
 
 
-def set_job_as_ready(job):
-    job.current_state = 'ready'
-    session.commit()
-    logger.log('Job ' + str(job.id) +
-               ' marked ready', 'INFO')
+def set_job_as_ready(*jobs):
+    for job in jobs:
+        job.current_state = 'ready'
+        session.commit()
+        logger.log('Job ' + str(job.id) +
+                ' marked ready', 'INFO')
 
 # Set job as running
 
