@@ -18,7 +18,7 @@ job_4 = create_job('sleep "35"', 1323,
 # linking jobs
 # job 1 is the root 
 link_job_to_job(parent_job=job_1, child_job=job_2)
-set_job_as_ready([job_1])
+set_job_as_ready(job_1)
 # job 2 is the parent for jobs 3, 4
 link_job_to_job(parent_job=job_2, child_job=job_3)
 link_job_to_job(parent_job=job_2, child_job=job_4)
